@@ -10,19 +10,39 @@ AILMENT_CHOICES = (
 )
 
 
+
+MEDICINE_CHOICES = ( 
+    ("MED1", "med1"),
+    ("MED2", "med2"),
+    ("MED3", "med3"), 
+)
+
+MEDICINE_PRICES = {
+    "MED1": 5.00,
+    "MED2": 10.00,
+    "MED3": 15.00,
+}
+
 class Medication(models.Model):
     '''
     Handles medications available in the health facility
     '''
-    name = models.CharField(max_length=100)
+    name = models.CharField(max_length=255, choices=MEDICINE_CHOICES, default='')
     description = models.TextField()
     quantity = models.IntegerField()
-    price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.00)
-    
+    price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
+
+    def save(self, *args, **kwargs):
+        if self.name in dict(MEDICINE_CHOICES):
+            selected_price = MEDICINE_PRICES.get(self.name)
+            self.price = selected_price
+        else:
+            print("Medication name not in choices:", self.name)
+        super().save(*args, **kwargs)
     
     def __str__(self):
-        return self.name
-    
+        return f" {self.name} - {self.price}"
+
 class Customer(models.Model):
     '''
     Handles customers
