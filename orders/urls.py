@@ -2,7 +2,7 @@
 from django.urls import path
 from .views import (OrderListCreateAPIView, OrderDetailAPIView,MedicationListCreateAPIView, 
                         MedicationDetailAPIView,StatementDetailAPIView,UserRegistrationAPIView, 
-                        UserLoginAPIView,UserLogoutAPIView,InitiatePaymentAPIView)
+                        UserLoginAPIView,UserLogoutAPIView,InitiatePaymentAPIView,MpesaCallBack)
 
 urlpatterns = [
     path('register/', UserRegistrationAPIView.as_view(), name='user_register'),
@@ -15,4 +15,5 @@ urlpatterns = [
     path('statement/<int:pk>/', StatementDetailAPIView.as_view(), name='statement-detail'),
     
     path('initiate_payment/', InitiatePaymentAPIView.as_view(), name='initiate_payment'),
+    path("callback/", MpesaCallBack.as_view(), name="callback"),
 ]

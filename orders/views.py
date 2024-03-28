@@ -1,4 +1,5 @@
 # views.py
+import json
 from django.contrib.auth import logout
 from django.http import Http404
 from rest_framework import status
@@ -9,13 +10,16 @@ from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Medication, Order, Statement
-from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
+from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer,MpesaCheckoutSerializer
 
+import logging
 import requests
 import base64
 from datetime import datetime
+from django_daraja.mpesa.core import MpesaClient
+from .utils import MpesaGateWay
 
-
+gateway = MpesaGateWay()
 class UserRegistrationAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="User Registration",
@@ -302,6 +306,7 @@ def initiate_payment(phone_number, amount, callback_url):
 
 
 class InitiatePaymentAPIView(APIView):
+    serializer = MpesaCheckoutSerializer
     @swagger_auto_schema(
         operation_summary="Initiate Payment",
         request_body=openapi.Schema(
@@ -318,13 +323,18 @@ class InitiatePaymentAPIView(APIView):
             status.HTTP_400_BAD_REQUEST: "Bad Request"
         }
     )
-    def post(self, request):
-        phone_number = request.data.get('phone_number')
-        amount = request.data.get('amount')
-        callback_url = request.data.get('callback_url')
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            payload = {"data":serializer.validated_data, "request":request}
+            res = gateway.stk_push_request(payload)
+            return Response(res, status=200)
+        
+class MpesaCallBack(APIView):
+    def get(self, request):
+        return Response({"status": "OK"}, status=200)
 
-        if not phone_number or not amount or not callback_url:
-            return Response({"error": "Please provide phone_number, amount, and callback_url"}, status=status.HTTP_400_BAD_REQUEST)
-
-        payment_response = initiate_payment(phone_number, amount, callback_url)
-        return Response(payment_response)
+    def post(self, request, *args, **kwargs):
+        logging.info("{}".format("Callback from MPESA"))
+        data = request.body
+        return gateway.callback(json.loads(data))
