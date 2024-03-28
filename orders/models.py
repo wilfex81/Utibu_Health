@@ -54,23 +54,32 @@ class Customer(models.Model):
     def __str__(self):
         return self.user.username
     
-
 class Order(models.Model):
     '''
     Handles customer orders
     '''
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
-    medications = models.ForeignKey(Medication, on_delete=models.CASCADE, default=None)
-    quantity = models.IntegerField(default=0)
-    total_price = models.DecimalField(max_digits=10, decimal_places=2, default = 0.00)
+    medications = models.ManyToManyField(Medication)
     order_date = models.DateTimeField(auto_now_add=True)
     is_confirmed = models.BooleanField(default=False)
-    
-    
-    def __str__(self):
-        return f"{self.customer} - {self.medication}"
-    
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
 
+    def calculate_total_price(self):
+        total_price = sum(medication.price * medication.quantity for medication in self.medications.all())
+        print("Total Price:", total_price) 
+        return total_price
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)  # Save the order first
+        self.total_price = self.calculate_total_price()
+        print("Total Price before saving:", self.total_price)
+        super().save(*args, **kwargs)  # Save again to update total_price
+
+    def __str__(self):
+        medications_str = ', '.join(str(medication) for medication in self.medications.all())
+        return f"{self.customer} - Medications: {medications_str}, Total Price: {self.total_price}"
+
+    
 class Statement(models.Model):
     '''
     Handles statements
