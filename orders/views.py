@@ -1,4 +1,5 @@
 # views.py
+from django.contrib.auth import logout
 from django.http import Http404
 from rest_framework import status
 from rest_framework.views import APIView
@@ -8,7 +9,8 @@ from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Medication, Order, Statement
-from .serializers import MedicationSerializer, OrderSerializer,StatementSerializer
+from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
+
 
 class UserRegistrationAPIView(APIView):
     @swagger_auto_schema(
@@ -27,7 +29,6 @@ class UserRegistrationAPIView(APIView):
             400: "Bad Request",
         },
     )
-    
     def post(self, request):
         username = request.data.get('username')
         email = request.data.get('email')
@@ -39,12 +40,14 @@ class UserRegistrationAPIView(APIView):
         if User.objects.filter(username=username).exists():
             return Response({"error": "Username is already taken"}, status=status.HTTP_400_BAD_REQUEST)
 
-        user = User.objects.create_user(username=username, email=email, password=password)
+        user = User.objects.create_user(
+            username=username, email=email, password=password)
         if user:
             return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
         else:
             return Response({"error": "Unable to register user"}, status=status.HTTP_400_BAD_REQUEST)
-        
+
+
 class UserLoginAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="User Login",
@@ -61,7 +64,6 @@ class UserLoginAPIView(APIView):
             401: "Unauthorized",
         },
     )
-    
     def post(self, request):
         username = request.data.get('username')
         password = request.data.get('password')
@@ -75,16 +77,19 @@ class UserLoginAPIView(APIView):
             return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
         else:
             return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
-from django.contrib.auth import logout
+
+
 class UserLogoutAPIView(APIView):
     def post(self, request):
         logout(request)
         return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
+
 class OrderListCreateAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="List orders",
-        responses={status.HTTP_200_OK: openapi.Response('List of orders', OrderSerializer(many=True))}
+        responses={status.HTTP_200_OK: openapi.Response(
+            'List of orders', OrderSerializer(many=True))}
     )
     def get(self, request):
         orders = Order.objects.all()
@@ -94,7 +99,8 @@ class OrderListCreateAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Create order",
         request_body=OrderSerializer,
-        responses={status.HTTP_201_CREATED: openapi.Response('Created order', OrderSerializer)}
+        responses={status.HTTP_201_CREATED: openapi.Response(
+            'Created order', OrderSerializer)}
     )
     def post(self, request):
         serializer = OrderSerializer(data=request.data)
@@ -103,16 +109,18 @@ class OrderListCreateAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class OrderDetailAPIView(APIView):
     def get_order(self, pk):
         try:
             return Order.objects.get(pk=pk)
         except Order.DoesNotExist:
             raise Http404
-        
+
     @swagger_auto_schema(
         operation_summary="Retrieve order details",
-        responses={status.HTTP_200_OK: openapi.Response('Order details', OrderSerializer)}
+        responses={status.HTTP_200_OK: openapi.Response(
+            'Order details', OrderSerializer)}
     )
     def get(self, request, pk):
         order = self.get_order(pk)
@@ -122,7 +130,8 @@ class OrderDetailAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="Update order",
         request_body=OrderSerializer,
-        responses={status.HTTP_200_OK: openapi.Response('Updated order', OrderSerializer)}
+        responses={status.HTTP_200_OK: openapi.Response(
+            'Updated order', OrderSerializer)}
     )
     def put(self, request, pk):
         order = self.get_order(pk)
@@ -141,6 +150,7 @@ class OrderDetailAPIView(APIView):
         order.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 class MedicationListCreateAPIView(APIView):
     '''
     Pharmacy/Doctor can create medication(s)
@@ -148,18 +158,20 @@ class MedicationListCreateAPIView(APIView):
     '''
     @swagger_auto_schema(
         operation_summary='Medication List',
-        responses={status.HTTP_200_OK: openapi.Response('List of Medications',MedicationSerializer(many=True))}    
+        responses={status.HTTP_200_OK: openapi.Response(
+            'List of Medications', MedicationSerializer(many=True))}
     )
     def get(self, request):
         medication = Medication.objects.all()
         serializer = MedicationSerializer(medication, many=True)
         return Response(serializer.data)
-    
+
     @swagger_auto_schema(
         operation_summary="Create Medication",
         request_body=MedicationSerializer,
         responses={
-            status.HTTP_201_CREATED:openapi.Response('Created Medication', MedicationSerializer)
+            status.HTTP_201_CREATED: openapi.Response(
+                'Created Medication', MedicationSerializer)
         }
     )
     def post(self, request):
@@ -168,36 +180,39 @@ class MedicationListCreateAPIView(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-     
+
+
 class MedicationDetailAPIView(APIView):
     '''
     with this endpoint the patient can select a given 
     medication as per the doctors prescription
     The doctor can also update or delete a given medication for a given customer
     '''
-    
+
     def get_medication(self, pk):
         try:
-            return Order.objects.get(pk=pk)
-        except Order.DoesNotExist:
+            return Medication.objects.get(pk=pk)
+        except Medication.DoesNotExist:
             raise Http404
-    
+
     @swagger_auto_schema(
         operation_summary='Retrieve Medication details',
         responses={
-            status.HTTP_200_OK:openapi.Response('Medication details', MedicationSerializer)
+            status.HTTP_200_OK: openapi.Response(
+                'Medication details', MedicationSerializer)
         }
     )
     def get(self, request, pk):
         medication = self.get_medication(pk)
         serializer = MedicationSerializer(medication)
         return Response(serializer.data)
-    
+
     @swagger_auto_schema(
         operation_summary="Update Medication",
         request_body=MedicationSerializer,
         responses={
-            status.HTTP_200_OK:openapi.Response('Updates Medication', MedicationSerializer)
+            status.HTTP_200_OK: openapi.Response(
+                'Updates Medication', MedicationSerializer)
         }
     )
     def put(self, request, pk):
@@ -207,7 +222,7 @@ class MedicationDetailAPIView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
     @swagger_auto_schema(
         operation_summary="Delete a given Medication",
         responses={
@@ -218,27 +233,27 @@ class MedicationDetailAPIView(APIView):
         medication = self.get_medication(pk)
         medication.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
-    
-    
+
+
 class StatementDetailAPIView(APIView):
     '''
     Patient gets a statement of pending bills
     '''
+
     def get_statement(self, pk):
         try:
             return Statement.objects.get(pk=pk)
         except Statement.DoesNotExist:
             raise Http404
-    
+
     @swagger_auto_schema(
         operation_summary='Retrieve Statement details',
         responses={
-            status.HTTP_200_OK:openapi.Response('Statement Details', StatementSerializer)
+            status.HTTP_200_OK: openapi.Response(
+                'Statement Details', StatementSerializer)
         }
     )
-    
-    def get(self, request,pk):
+    def get(self, request, pk):
         statement = self.get_statement(pk)
         serializer = StatementSerializer(statement)
         return Response(serializer.data)
-    
