@@ -5,8 +5,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from .models import Medication, Order
-from .serializers import MedicationSerializer, OrderSerializer
+from .models import Medication, Order, Statement
+from .serializers import MedicationSerializer, OrderSerializer,StatementSerializer
 
 class OrderListCreateAPIView(APIView):
     @swagger_auto_schema(
@@ -147,5 +147,25 @@ class MedicationDetailAPIView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
     
     
+class StatementDetailAPIView(APIView):
+    '''
+    Patient gets a statement of pending bills
+    '''
+    def get_statement(self, pk):
+        try:
+            return Statement.objects.get(pk=pk)
+        except Statement.DoesNotExist:
+            raise Http404
     
+    @swagger_auto_schema(
+        operation_summary='Retrieve Statement details',
+        responses={
+            status.HTTP_200_OK:openapi.Response('Statement Details', StatementSerializer)
+        }
+    )
+    
+    def get(self, request,pk):
+        statement = self.get_statement(pk)
+        serializer = StatementSerializer(statement)
+        return Response(serializer.data)
     
