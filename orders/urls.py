@@ -1,9 +1,13 @@
 
 from django.urls import path
 from .views import (OrderListCreateAPIView, OrderDetailAPIView,MedicationListCreateAPIView, 
-                        MedicationDetailAPIView,StatementDetailAPIView)
+                        MedicationDetailAPIView,StatementDetailAPIView,UserRegistrationAPIView, 
+                        UserLoginAPIView,UserLogoutAPIView)
 
 urlpatterns = [
+    path('register/', UserRegistrationAPIView.as_view(), name='user_register'),
+    path('login/', UserLoginAPIView.as_view(), name='user_login'),
+    path('logout/', UserLogoutAPIView.as_view(), name='user_logout'),
     path('orders/', OrderListCreateAPIView.as_view(), name='order-list-create'),
     path('orders/<int:pk>/', OrderDetailAPIView.as_view(), name='order-detail'),
     path('medications/', MedicationListCreateAPIView.as_view(), name='medication-list-create'),

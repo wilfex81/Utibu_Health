@@ -3,10 +3,83 @@ from django.http import Http404
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.contrib.auth.models import User
+from django.contrib.auth import authenticate
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Medication, Order, Statement
 from .serializers import MedicationSerializer, OrderSerializer,StatementSerializer
+
+class UserRegistrationAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="User Registration",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["username", "email", "password"],
+            properties={
+                "username": openapi.Schema(type=openapi.TYPE_STRING),
+                "email": openapi.Schema(type=openapi.TYPE_STRING, format=openapi.FORMAT_EMAIL),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={
+            201: "Created",
+            400: "Bad Request",
+        },
+    )
+    
+    def post(self, request):
+        username = request.data.get('username')
+        email = request.data.get('email')
+        password = request.data.get('password')
+
+        if not username or not email or not password:
+            return Response({"error": "Please provide username, email, and password"}, status=status.HTTP_400_BAD_REQUEST)
+
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username is already taken"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = User.objects.create_user(username=username, email=email, password=password)
+        if user:
+            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"error": "Unable to register user"}, status=status.HTTP_400_BAD_REQUEST)
+        
+class UserLoginAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="User Login",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["username", "password"],
+            properties={
+                "username": openapi.Schema(type=openapi.TYPE_STRING),
+                "password": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={
+            200: "OK",
+            401: "Unauthorized",
+        },
+    )
+    
+    def post(self, request):
+        username = request.data.get('username')
+        password = request.data.get('password')
+
+        if not username or not password:
+            return Response({"error": "Please provide username and password"}, status=status.HTTP_400_BAD_REQUEST)
+
+        user = authenticate(username=username, password=password)
+
+        if user:
+            return Response({"message": "Login successful"}, status=status.HTTP_200_OK)
+        else:
+            return Response({"error": "Invalid username or password"}, status=status.HTTP_401_UNAUTHORIZED)
+from django.contrib.auth import logout
+class UserLogoutAPIView(APIView):
+    def post(self, request):
+        logout(request)
+        return Response({"detail": "Successfully logged out."}, status=status.HTTP_200_OK)
 
 class OrderListCreateAPIView(APIView):
     @swagger_auto_schema(
