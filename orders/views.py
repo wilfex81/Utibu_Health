@@ -11,6 +11,10 @@ from drf_yasg import openapi
 from .models import Medication, Order, Statement
 from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
 
+import requests
+import base64
+from datetime import datetime
+
 
 class UserRegistrationAPIView(APIView):
     @swagger_auto_schema(
@@ -257,3 +261,70 @@ class StatementDetailAPIView(APIView):
         statement = self.get_statement(pk)
         serializer = StatementSerializer(statement)
         return Response(serializer.data)
+
+
+def initiate_payment(phone_number, amount, callback_url):
+    consumer_key = 'your_consumer_key'
+    consumer_secret = 'your_consumer_secret'
+    shortcode = 'your_shortcode'
+    lipa_na_mpesa_online_passkey = 'your_passkey'
+
+    url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
+    headers = {
+        'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(consumer_key, consumer_secret).encode()).decode()),
+    }
+
+    response = requests.get(url, headers=headers)
+    access_token = response.json()['access_token']
+
+    url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
+    headers = {
+        'Authorization': 'Bearer {}'.format(access_token),
+        'Content-Type': 'application/json',
+    }
+    payload = {
+        'BusinessShortCode': shortcode,
+        'Password': base64.b64encode('{}{}{}'.format(shortcode, lipa_na_mpesa_online_passkey, datetime.now().strftime('%Y%m%d%H%M%S')).encode()).decode(),
+        'Timestamp': datetime.now().strftime('%Y%m%d%H%M%S'),
+        'TransactionType': 'CustomerPayBillOnline',
+        'Amount': amount,
+        'PartyA': phone_number,
+        'PartyB': shortcode,
+        'PhoneNumber': phone_number,
+        'CallBackURL': callback_url,
+        'AccountReference': 'Test',
+        'TransactionDesc': 'Test payment',
+    }
+
+    # Initiate payment
+    response = requests.post(url, json=payload, headers=headers)
+    return response.json()
+
+
+class InitiatePaymentAPIView(APIView):
+    @swagger_auto_schema(
+        operation_summary="Initiate Payment",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["phone_number", "amount", "callback_url"],
+            properties={
+                "phone_number": openapi.Schema(type=openapi.TYPE_STRING),
+                "amount": openapi.Schema(type=openapi.TYPE_NUMBER),
+                "callback_url": openapi.Schema(type=openapi.TYPE_STRING),
+            },
+        ),
+        responses={
+            status.HTTP_200_OK: "Payment initiated successfully",
+            status.HTTP_400_BAD_REQUEST: "Bad Request"
+        }
+    )
+    def post(self, request):
+        phone_number = request.data.get('phone_number')
+        amount = request.data.get('amount')
+        callback_url = request.data.get('callback_url')
+
+        if not phone_number or not amount or not callback_url:
+            return Response({"error": "Please provide phone_number, amount, and callback_url"}, status=status.HTTP_400_BAD_REQUEST)
+
+        payment_response = initiate_payment(phone_number, amount, callback_url)
+        return Response(payment_response)
