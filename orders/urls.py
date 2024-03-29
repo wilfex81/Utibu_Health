@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (OrderListCreateAPIView, OrderDetailAPIView,MedicationListCreateAPIView, 
                         MedicationDetailAPIView,StatementDetailAPIView,UserRegistrationAPIView, 
                         UserLoginAPIView,UserLogoutAPIView)
-
+from . import views
 urlpatterns = [
     path('register/', UserRegistrationAPIView.as_view(), name='user_register'),
     path('login/', UserLoginAPIView.as_view(), name='user_login'),
@@ -13,4 +13,6 @@ urlpatterns = [
     path('medications/', MedicationListCreateAPIView.as_view(), name='medication-list-create'),
     path('medications/<int:pk>/', MedicationDetailAPIView.as_view(), name='medication-detail'),
     path('statement/<int:pk>/', StatementDetailAPIView.as_view(), name='statement-detail'),
+    path('accesstoken/', views.get_access_token, name='get_access_token'),
+    path('stkpush/', views.initiate_stk_push, name='initiate_stk_push'),
 ]

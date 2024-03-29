@@ -1,4 +1,5 @@
 # views.py
+import json
 from django.contrib.auth import logout
 from django.http import Http404
 from rest_framework import status
@@ -6,10 +7,14 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Medication, Order, Statement
 from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
+from rest_framework.decorators import api_view
+from .genrateAcesstoken import get_access_token
+from .stkPush import initiate_stk_push
 
 
 class UserRegistrationAPIView(APIView):
@@ -257,3 +262,4 @@ class StatementDetailAPIView(APIView):
         statement = self.get_statement(pk)
         serializer = StatementSerializer(statement)
         return Response(serializer.data)
+
