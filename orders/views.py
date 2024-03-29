@@ -7,19 +7,16 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.http import JsonResponse
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .models import Medication, Order, Statement
-from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer,MpesaCheckoutSerializer
+from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
+from rest_framework.decorators import api_view
+from .genrateAcesstoken import get_access_token
+from .stkPush import initiate_stk_push
 
-import logging
-import requests
-import base64
-from datetime import datetime
-from django_daraja.mpesa.core import MpesaClient
-from .utils import MpesaGateWay
 
-gateway = MpesaGateWay()
 class UserRegistrationAPIView(APIView):
     @swagger_auto_schema(
         operation_summary="User Registration",
@@ -266,75 +263,3 @@ class StatementDetailAPIView(APIView):
         serializer = StatementSerializer(statement)
         return Response(serializer.data)
 
-
-def initiate_payment(phone_number, amount, callback_url):
-    consumer_key = 'your_consumer_key'
-    consumer_secret = 'your_consumer_secret'
-    shortcode = 'your_shortcode'
-    lipa_na_mpesa_online_passkey = 'your_passkey'
-
-    url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
-    headers = {
-        'Authorization': 'Basic {}'.format(base64.b64encode('{}:{}'.format(consumer_key, consumer_secret).encode()).decode()),
-    }
-
-    response = requests.get(url, headers=headers)
-    access_token = response.json()['access_token']
-
-    url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest'
-    headers = {
-        'Authorization': 'Bearer {}'.format(access_token),
-        'Content-Type': 'application/json',
-    }
-    payload = {
-        'BusinessShortCode': shortcode,
-        'Password': base64.b64encode('{}{}{}'.format(shortcode, lipa_na_mpesa_online_passkey, datetime.now().strftime('%Y%m%d%H%M%S')).encode()).decode(),
-        'Timestamp': datetime.now().strftime('%Y%m%d%H%M%S'),
-        'TransactionType': 'CustomerPayBillOnline',
-        'Amount': amount,
-        'PartyA': phone_number,
-        'PartyB': shortcode,
-        'PhoneNumber': phone_number,
-        'CallBackURL': callback_url,
-        'AccountReference': 'Test',
-        'TransactionDesc': 'Test payment',
-    }
-
-    # Initiate payment
-    response = requests.post(url, json=payload, headers=headers)
-    return response.json()
-
-
-class InitiatePaymentAPIView(APIView):
-    serializer = MpesaCheckoutSerializer
-    @swagger_auto_schema(
-        operation_summary="Initiate Payment",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            required=["phone_number", "amount", "callback_url"],
-            properties={
-                "phone_number": openapi.Schema(type=openapi.TYPE_STRING),
-                "amount": openapi.Schema(type=openapi.TYPE_NUMBER),
-                "callback_url": openapi.Schema(type=openapi.TYPE_STRING),
-            },
-        ),
-        responses={
-            status.HTTP_200_OK: "Payment initiated successfully",
-            status.HTTP_400_BAD_REQUEST: "Bad Request"
-        }
-    )
-    def post(self, request, *args, **kwargs):
-        serializer = self.serializer(data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            payload = {"data":serializer.validated_data, "request":request}
-            res = gateway.stk_push_request(payload)
-            return Response(res, status=200)
-        
-class MpesaCallBack(APIView):
-    def get(self, request):
-        return Response({"status": "OK"}, status=200)
-
-    def post(self, request, *args, **kwargs):
-        logging.info("{}".format("Callback from MPESA"))
-        data = request.body
-        return gateway.callback(json.loads(data))
