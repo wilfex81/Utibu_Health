@@ -41,7 +41,7 @@ class STKPushAPiView(APIView):
             )
         }
     )
-    def initiate_stk_push(request):
+    def post(request):
         '''
         Handle STK push to initiate payments
         
