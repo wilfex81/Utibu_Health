@@ -114,11 +114,27 @@
         "documentation": {}
     },
     {
+        "label": "status",
+        "importPath": "rest_framework",
+        "description": "rest_framework",
+        "isExtraImport": true,
+        "detail": "rest_framework",
+        "documentation": {}
+    },
+    {
         "label": "get_schema_view",
         "importPath": "drf_yasg.views",
         "description": "drf_yasg.views",
         "isExtraImport": true,
         "detail": "drf_yasg.views",
+        "documentation": {}
+    },
+    {
+        "label": "openapi",
+        "importPath": "drf_yasg",
+        "description": "drf_yasg",
+        "isExtraImport": true,
+        "detail": "drf_yasg",
         "documentation": {}
     },
     {
@@ -496,6 +512,22 @@
         "documentation": {}
     },
     {
+        "label": "swagger_auto_schema",
+        "importPath": "drf_yasg.utils",
+        "description": "drf_yasg.utils",
+        "isExtraImport": true,
+        "detail": "drf_yasg.utils",
+        "documentation": {}
+    },
+    {
+        "label": "swagger_auto_schema",
+        "importPath": "drf_yasg.utils",
+        "description": "drf_yasg.utils",
+        "isExtraImport": true,
+        "detail": "drf_yasg.utils",
+        "documentation": {}
+    },
+    {
         "label": "APITestCase",
         "importPath": "rest_framework.test",
         "description": "rest_framework.test",
@@ -533,14 +565,6 @@
         "description": "rest_framework.views",
         "isExtraImport": true,
         "detail": "rest_framework.views",
-        "documentation": {}
-    },
-    {
-        "label": "swagger_auto_schema",
-        "importPath": "drf_yasg.utils",
-        "description": "drf_yasg.utils",
-        "isExtraImport": true,
-        "detail": "drf_yasg.utils",
         "documentation": {}
     },
     {
@@ -1042,7 +1066,7 @@
         "kind": 2,
         "importPath": "orders.stkPush",
         "description": "orders.stkPush",
-        "peekOfCode": "def initiate_stk_push(request):\n    access_token_response = get_access_token(request)\n    if isinstance(access_token_response, JsonResponse):\n        access_token = access_token_response.content.decode('utf-8')\n        access_token_json = json.loads(access_token)\n        access_token = access_token_json.get('access_token')\n        if access_token:\n            amount = 1\n            phone = \"254798630738\"\n            passkey = \"bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919\"",
+        "peekOfCode": "def initiate_stk_push(request):\n    '''\n    Handle STK push to initiate payments\n    '''\n    access_token_response = get_access_token(request)\n    if isinstance(access_token_response, JsonResponse):\n        access_token = access_token_response.content.decode('utf-8')\n        access_token_json = json.loads(access_token)\n        access_token = access_token_json.get('access_token')\n        if access_token:",
         "detail": "orders.stkPush",
         "documentation": {}
     },
