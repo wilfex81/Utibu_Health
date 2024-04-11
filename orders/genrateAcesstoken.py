@@ -6,8 +6,10 @@ from rest_framework import status
 from decouple import config
 
 def get_access_token(request):
-    consumer_key = config("consumer_key",'')
-    consumer_secret = config("consumer_secret")
+    # consumer_key = config("consumer_key",'')
+    consumer_key = os.environ.get("CONSUMER_KEY")
+    # consumer_secret = config("consumer_secret")
+    consumer_secret = os.environ.get("CONSUMER_SECRET")
     access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'
     headers = {'Content-Type': 'application/json'}
     auth = (consumer_key, consumer_secret)
