@@ -916,7 +916,7 @@
         "kind": 2,
         "importPath": "orders.genrateAcesstoken",
         "description": "orders.genrateAcesstoken",
-        "peekOfCode": "def get_access_token(request):\n    consumer_key = config(\"consumer_key\",'')\n    consumer_secret = config(\"consumer_secret\")\n    access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'\n    headers = {'Content-Type': 'application/json'}\n    auth = (consumer_key, consumer_secret)\n    try:\n        response = requests.get(access_token_url, headers=headers, auth=auth)\n        response.raise_for_status()\n        result = response.json()",
+        "peekOfCode": "def get_access_token(request):\n    # consumer_key = config(\"consumer_key\",'')\n    consumer_key = os.environ.get(\"CONSUMER_KEY\")\n    # consumer_secret = config(\"consumer_secret\")\n    consumer_secret = os.environ.get(\"CONSUMER_SECRET\")\n    access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials'\n    headers = {'Content-Type': 'application/json'}\n    auth = (consumer_key, consumer_secret)\n    try:\n        response = requests.get(access_token_url, headers=headers, auth=auth)",
         "detail": "orders.genrateAcesstoken",
         "documentation": {}
     },
