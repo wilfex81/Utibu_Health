@@ -139,11 +139,18 @@
     },
     {
         "label": "settings",
-        "kind": 6,
+        "importPath": "django.conf",
+        "description": "django.conf",
         "isExtraImport": true,
-        "importPath": "settings",
-        "description": "settings",
-        "detail": "settings",
+        "detail": "django.conf",
+        "documentation": {}
+    },
+    {
+        "label": "settings",
+        "importPath": "django.conf",
+        "description": "django.conf",
+        "isExtraImport": true,
+        "detail": "django.conf",
         "documentation": {}
     },
     {
@@ -169,14 +176,6 @@
         "importPath": "django.db.models.deletion",
         "description": "django.db.models.deletion",
         "detail": "django.db.models.deletion",
-        "documentation": {}
-    },
-    {
-        "label": "settings",
-        "importPath": "django.conf",
-        "description": "django.conf",
-        "isExtraImport": true,
-        "detail": "django.conf",
         "documentation": {}
     },
     {
