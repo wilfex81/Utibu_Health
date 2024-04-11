@@ -307,11 +307,53 @@
         "documentation": {}
     },
     {
+        "label": "migrations",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
         "label": "models",
         "importPath": "django.db",
         "description": "django.db",
         "isExtraImport": true,
         "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "models",
+        "importPath": "django.db",
+        "description": "django.db",
+        "isExtraImport": true,
+        "detail": "django.db",
+        "documentation": {}
+    },
+    {
+        "label": "phonenumber_field.modelfields",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "phonenumber_field.modelfields",
+        "description": "phonenumber_field.modelfields",
+        "detail": "phonenumber_field.modelfields",
+        "documentation": {}
+    },
+    {
+        "label": "PhoneNumberField",
+        "importPath": "phonenumber_field.modelfields",
+        "description": "phonenumber_field.modelfields",
+        "isExtraImport": true,
+        "detail": "phonenumber_field.modelfields",
+        "documentation": {}
+    },
+    {
+        "label": "uuid",
+        "kind": 6,
+        "isExtraImport": true,
+        "importPath": "uuid",
+        "description": "uuid",
+        "detail": "uuid",
         "documentation": {}
     },
     {
@@ -409,23 +451,6 @@
         "description": "django.contrib.auth.models",
         "isExtraImport": true,
         "detail": "django.contrib.auth.models",
-        "documentation": {}
-    },
-    {
-        "label": "PhoneNumberField",
-        "importPath": "phonenumber_field.modelfields",
-        "description": "phonenumber_field.modelfields",
-        "isExtraImport": true,
-        "detail": "phonenumber_field.modelfields",
-        "documentation": {}
-    },
-    {
-        "label": "uuid",
-        "kind": 6,
-        "isExtraImport": true,
-        "importPath": "uuid",
-        "description": "uuid",
-        "detail": "uuid",
         "documentation": {}
     },
     {
@@ -814,6 +839,15 @@
         "description": "orders.migrations.0009_order_total_price",
         "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('orders', '0008_remove_order_quantity_remove_order_total_price_and_more'),\n    ]\n    operations = [\n        migrations.AddField(\n            model_name='order',\n            name='total_price',\n            field=models.DecimalField(decimal_places=2, default=0.0, max_digits=10),\n        ),",
         "detail": "orders.migrations.0009_order_total_price",
+        "documentation": {}
+    },
+    {
+        "label": "Migration",
+        "kind": 6,
+        "importPath": "orders.migrations.0010_transaction",
+        "description": "orders.migrations.0010_transaction",
+        "peekOfCode": "class Migration(migrations.Migration):\n    dependencies = [\n        ('orders', '0009_order_total_price'),\n    ]\n    operations = [\n        migrations.CreateModel(\n            name='Transaction',\n            fields=[\n                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),\n                ('transaction_no', models.CharField(default=uuid.uuid4, max_length=50, unique=True)),",
+        "detail": "orders.migrations.0010_transaction",
         "documentation": {}
     },
     {
