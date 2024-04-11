@@ -2,7 +2,7 @@
 from django.urls import path
 from .views import (OrderListCreateAPIView, OrderDetailAPIView,MedicationListCreateAPIView, 
                         MedicationDetailAPIView,StatementDetailAPIView,UserRegistrationAPIView, 
-                        UserLoginAPIView,UserLogoutAPIView)
+                        UserLoginAPIView,UserLogoutAPIView,STKPushAPiView)
 from . import views
 urlpatterns = [
     path('register/', UserRegistrationAPIView.as_view(), name='user_register'),
@@ -15,4 +15,5 @@ urlpatterns = [
     path('statement/<int:pk>/', StatementDetailAPIView.as_view(), name='statement-detail'),
     path('accesstoken/', views.get_access_token, name='get_access_token'),
     path('stkpush/', views.initiate_stk_push, name='initiate_stk_push'),
+    path('stkpush/', STKPushAPiView.as_view(),name = 'stk_push'),
 ]

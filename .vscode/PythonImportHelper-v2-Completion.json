@@ -512,6 +512,22 @@
         "documentation": {}
     },
     {
+        "label": "APIView",
+        "importPath": "rest_framework.views",
+        "description": "rest_framework.views",
+        "isExtraImport": true,
+        "detail": "rest_framework.views",
+        "documentation": {}
+    },
+    {
+        "label": "APIView",
+        "importPath": "rest_framework.views",
+        "description": "rest_framework.views",
+        "isExtraImport": true,
+        "detail": "rest_framework.views",
+        "documentation": {}
+    },
+    {
         "label": "swagger_auto_schema",
         "importPath": "drf_yasg.utils",
         "description": "drf_yasg.utils",
@@ -557,14 +573,6 @@
         "description": "django.contrib.auth",
         "isExtraImport": true,
         "detail": "django.contrib.auth",
-        "documentation": {}
-    },
-    {
-        "label": "APIView",
-        "importPath": "rest_framework.views",
-        "description": "rest_framework.views",
-        "isExtraImport": true,
-        "detail": "rest_framework.views",
         "documentation": {}
     },
     {
@@ -1062,11 +1070,11 @@
         "documentation": {}
     },
     {
-        "label": "initiate_stk_push",
-        "kind": 2,
+        "label": "STKPushAPiView",
+        "kind": 6,
         "importPath": "orders.stkPush",
         "description": "orders.stkPush",
-        "peekOfCode": "def initiate_stk_push(request):\n    '''\n    Handle STK push to initiate payments\n    '''\n    access_token_response = get_access_token(request)\n    if isinstance(access_token_response, JsonResponse):\n        access_token = access_token_response.content.decode('utf-8')\n        access_token_json = json.loads(access_token)\n        access_token = access_token_json.get('access_token')\n        if access_token:",
+        "peekOfCode": "class STKPushAPiView(APIView):\n    @swagger_auto_schema(\n        operation_summary='Initiate STK Push to Intiate Payments',\n        responses={\n            status.HTTP_200_OK: openapi.Response(\n                description=\"STK Push initiated successfully\",\n                examples={\n                    \"application/json\": {\n                        \"CheckoutRequestID\": \"123456789\",\n                        \"ResponseCode\": \"0\"",
         "detail": "orders.stkPush",
         "documentation": {}
     },

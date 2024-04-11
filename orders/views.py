@@ -14,7 +14,7 @@ from .models import Medication, Order, Statement
 from .serializers import MedicationSerializer, OrderSerializer, StatementSerializer
 from rest_framework.decorators import api_view
 from .genrateAcesstoken import get_access_token
-from .stkPush import initiate_stk_push
+from .stkPush import initiate_stk_push,STKPushAPiView
 
 
 class UserRegistrationAPIView(APIView):
